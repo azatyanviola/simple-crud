@@ -1,77 +1,51 @@
 'use strict';
 
-//import { v4 as uuidv4 } from "uuid";
+
+import mongoose from 'mongoose';
+import User from '../schema/user.js';
 
 
-let users = [
-    {
-        firstName: 'Jane',
-        lastName:'Jackson',
-        city:'Washington'
-    },
-    {
-        firstName: 'Eva',
-        lastName:'Sargsyan',
-        city:'Yerevan' 
-    },
-    {
-        firstName: 'John',
-        lastName:'Green',
-        city:'New York'
+async function getUsers(req, res){
+  const users = await User.find();
+
+    return res
+    .send({
+      data:users,
+    });
+  } 
+
+  async function addUser(req, res){
+    const userBody = req.body;
+
+      const data = await User.create(userBody);
+      return res
+            .status(201)
+            .send({
+               name: data
+      });
+    
+  }
+
+ async function deleteUser(req, res){ 
+
+    const user = await User.findByIdAndDelete(req.params.id);
+
+    if (!user) {
+      res
+      .status(404)
+      .send('No item found');
     }
-];
-
-const getUsers = (req, res) => {
-    res.send(users);
-  };
+    res.status(200).send();
+  } 
 
 
+async function changeUser(req, res){
+  const userBody = req.body;
 
-const getOneUser = (req, res) => {
-    const id = req.params.id;
-  
-    const foundUser = users.find((user) => user.id === id);
-  
-    res.send(foundUser);
-  }
-
-const addUser =  (req, res) => {
-    const user = req.body;
-  
-    const Id = uuidv4();
-    const UserId = { ...user, id: Id };
-  
-    users.push(UserId);
-    res.send(`User with the name ${user.firstName} added!`);
-  }
-
-const deleteUser = (req, res) => {
-    const id = req.params.id;
-  
-    users = users.filter((user) => user.id != id);
-  
-    res.send(`User with the id ${id} deleted.`);
+    await User.findByIdAndUpdate(req.params.id, req.body);
+    await User.save();
+    res.send(userBody);
   }
 
 
-const changeUser =  (req, res) => {
-    const id = req.params.id;
-    const { firstName, lastName, city } = req.body;
-  
-    const user = users.find((user) => user.id === id);
-  
-    if (firstName){
-         user.firstName = firstName;
-    }
-    if (lastName) {
-        user.lastName = lastName;
-    }
-    if (city) {
-        user.city = city;
-    }
-  
-    res.send(`User with the id ${id} has been changed!`);
-  }
-
-
-  export default {getUsers, getOneUser, deleteUser, addUser, changeUser };
+  export default {getUsers, deleteUser, addUser, changeUser };

@@ -3,14 +3,14 @@
 import express from 'express';
 import controllers from '../controllers/main.js';
 
+
 const router = express.Router();
 
 
-router.get('/', controllers.getUsers);
-router.get('/:id', controllers.getOneUser);
-router.post('/',controllers.addUser);
-router.delete('/:id', controllers.deleteUser);
-router.put('/:id', controllers.changeUser);
+router.get('/users', controllers.getUsers);
+router.post('/users',controllers.addUser);
+router.delete('users/:id', controllers.deleteUser);
+router.put('users/:id', controllers.changeUser);
 
 
 export default router;
