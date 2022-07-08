@@ -1,8 +1,10 @@
 'use strict';
 
 
-import mongoose from 'mongoose';
+import Contact from '../schema/contacts.js';
 import User from '../schema/user.js';
+import Conn  from '../schema/connection.js'
+
 
 
 async function getUsers(req, res){
@@ -14,16 +16,34 @@ async function getUsers(req, res){
     });
   } 
 
-  async function addUser(req, res){
-    const userBody = req.body;
 
-      const data = await User.create(userBody);
+  async function getOne(req, res){
+    const {_id} = req.params;
+    const users = await User.find({_id}).populate('contacts') ;
+  
+      return res
+      .send({
+        data: users[0],
+      });
+    } 
+
+  async function addUser(req, res){
+    const {firstname, lastname, city, contact} = req.body;
+
+    const session = await Conn.startSession();
+    await session.withTransaction(async () => {
+
+    const savedContact = await Contact.create({title: contact.title}, {session});
+
+    const data = await User.create({firstname, lastname, city, contacts:savedContact}, {session});
+
       return res
             .status(201)
             .send({
                name: data
       });
-    
+    });
+    session.endSession();
   }
 
  async function deleteUser(req, res){ 
@@ -48,4 +68,4 @@ async function changeUser(req, res){
   }
 
 
-  export default {getUsers, deleteUser, addUser, changeUser };
+  export default {getUsers, getOne, deleteUser, addUser, changeUser };

@@ -13,7 +13,12 @@ const userSchema = new Schema({
     city: {
         type: String,
         required: false,
-      }
+      },
+
+      contacts: [{
+        type:Schema.Types.ObjectId,
+        ref: 'Contact'
+      }]
   });
   
   const User = mongoose.model('User', userSchema);
